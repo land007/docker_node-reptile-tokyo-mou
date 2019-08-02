@@ -5,13 +5,15 @@ const EventProxy = require('eventproxy');
 const Bagpipe = require('bagpipe');
 const { promisify } = require('util');
 const statAsync = promisify(fs.stat);
+const schedule = require('node-schedule');
+const moment = require('moment');
+const readFile = (fileName) => promisify(fs.readFile)(fileName, 'utf8');
 
-const OpenProxy = false;// 打开代理
-const PipeMax = 20;// 同时任务数
-const PageMax = 8;// 最大页数
-const From = '30.07.2019';// 开始日期
-const Till = '30.07.2019';// 截至日期
-const key = '<span style="font-size: 20px; font-weight: 700;">';// 验证码key
+const OpenProxy = process.env['PIPEMAX'] || 'false';// 打开代理
+const PipeMax = process.env['PIPEMAX'] || '20';// 同时任务数
+const PageMax = process.env['PAGEMAX'] || '8';// 最大页数
+const SubtractDays = process.env['SUBTRACTDAYS'] || '1';// 减去天数
+const Key = '<span style="font-size: 20px; font-weight: 700;">';// 验证码Key
 const Proxys = [
 		'https://odq5mfsnhb.execute-api.ap-southeast-1.amazonaws.com/default/Proxy1',
 		'https://3sxgfrx6jl.execute-api.ap-southeast-1.amazonaws.com/default/Proxy2',
@@ -24,15 +26,16 @@ const Proxys = [
 		'https://mhu9tizbnj.execute-api.ap-southeast-1.amazonaws.com/default/Proxy9',
 		'https://8yflvll8a2.execute-api.ap-southeast-1.amazonaws.com/default/Proxy10'
 	];
+const Cron = process.env['CRON'] || '30 1 1 * * *';//每天的凌晨1点1分30秒触发
 var porxyNum = 0;//代理游标
 
 //const post_method = 'formData';// multipart/form-data
 const post_method = 'form';// application/x-www-form-urlencoded
-const bagpipe = new Bagpipe(PipeMax);
+const bagpipe = new Bagpipe(parseInt(PipeMax));
 const ep = new EventProxy();
 
 const _proxy_request = function(options, callback) {
-	if(OpenProxy) {
+	if(OpenProxy == 'true') {
 		let uri = options.uri;
 		porxyNum++;
 		if(porxyNum >= Proxys.length) {
@@ -240,7 +243,7 @@ var login = function() {
 		_proxy_request(options, function(error, response, body) {
 //			console.log('form.headers', response.headers);
 //			console.log('form.body', body);
-			let run = body.substring(body.indexOf(key) + key.length, body.length);
+			let run = body.substring(body.indexOf(Key) + Key.length, body.length);
 			run = run.substring(0, run.indexOf('='));
 			console.log(run);
 			let res = eval(run);
@@ -314,8 +317,19 @@ var getTables = function(max, from, till) {
 	});
 };
 
-var reptile = function(from, till, max) {
+var reptile = function(from, till, max, force) {
 	return new Promise(async function(resolve, reject) {
+		if(!force) {//如果不是强制，可以取缓存信息
+			let file_path = __dirname + '/reptile_' +  from + '-' + till + '.json';
+			try {
+				let content = await readFile(file_path);
+				let json = JSON.parse(content);
+				resolve(json);
+				return;
+			} catch (e) {
+				console.log('没有找到 ' + file_path + ' 缓存文件');
+			}
+		}
 		let time = new Date().getTime();
 		let msg = await login();
 		console.log('login time', new Date().getTime() - time); time = new Date().getTime();
@@ -347,14 +361,24 @@ var reptile = function(from, till, max) {
 };
 
 var start = async function() {
-	let items = await reptile(From, Till, PageMax);
+	let from = moment().subtract(parseInt(SubtractDays), 'days').format('DD.MM.YYYY') || '30.07.2019';// 开始日期
+	let till = moment().subtract(parseInt(SubtractDays), 'days').format('DD.MM.YYYY') || '30.07.2019';// 截至日期
+	let file_path = __dirname + '/reptile_' +  from + '-' + till + '.json';
+	let items = await reptile(from, till, parseInt(PageMax));
 	if(items !== '') {
-		fs.writeFile('./reptile.json', JSON.stringify(items), function(err) {
-			console.log('写文件操作成功');
+		fs.writeFile(file_path, JSON.stringify(items, null, 4), function(err) {
+			console.log('写文件 ' + file_path + ' 操作成功!');
 		});
 	}
 };
-//start();
+start();
+var scheduleCronstyle = function() {
+    schedule.scheduleJob(Cron, ()=>{
+        console.log('scheduleCronstyle:', moment().format('LLL'));
+        start();
+    }); 
+}
+scheduleCronstyle();
 
 module.exports = {reptile};
 

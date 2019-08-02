@@ -1,9 +1,12 @@
 const http = require("http"), url = require("url"), path = require("path"), normalize = path.normalize, join = path.join, sep = path.sep, fs = require("fs");
 const tokyoMou = require('./tokyo-mou');
+const moment = require('moment');
 
 const hostname = '0.0.0.0';
 const port = 80;
+
 const PageMax = 2;// 最大页数
+const SubtractDays = process.env['SUBTRACTDAYS'] || '1';// 减去天数
 
 const server = http.createServer(async (req, res) => {
 	var pathname = url.parse(req.url).pathname;
@@ -18,8 +21,10 @@ const server = http.createServer(async (req, res) => {
 			"Access-Control-Allow-Headers" : "Content-Type,Content-Length, Authorization, Accept,X-Requested-With",
 			"Access-Control-Allow-Methods" : "PUT,POST,GET,DELETE,OPTIONS",
 		});
-		let json = await tokyoMou.reptile('23.07.2019', '23.07.2019', PageMax);
-		res.end(JSON.stringify(json));
+		let from = moment().subtract(parseInt(SubtractDays), 'days').format('DD.MM.YYYY') || '30.07.2019';// 开始日期
+		let till = moment().subtract(parseInt(SubtractDays), 'days').format('DD.MM.YYYY') || '30.07.2019';// 截至日期
+		let json = await tokyoMou.reptile(from, till, PageMax);
+		res.end(JSON.stringify(json, null, 4));
 		// console.log(tokyoMou);
 	} else {
 		res.statusCode = 404;
