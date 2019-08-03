@@ -1,6 +1,7 @@
 const http = require("http"), url = require("url"), path = require("path"), normalize = path.normalize, join = path.join, sep = path.sep, fs = require("fs");
 const tokyoMou = require('./tokyo-mou');
 const moment = require('moment');
+const converter = require('./converter');
 
 const hostname = '0.0.0.0';
 const port = 80;
@@ -23,7 +24,8 @@ const server = http.createServer(async (req, res) => {
 		});
 		let from = moment().subtract(parseInt(SubtractDays), 'days').format('DD.MM.YYYY') || '30.07.2019';// 开始日期
 		let till = moment().subtract(parseInt(SubtractDays), 'days').format('DD.MM.YYYY') || '30.07.2019';// 截至日期
-		let json = await tokyoMou.reptile(from, till, PageMax);
+		let list = await tokyoMou.reptile(from, till, PageMax);
+		let json = converter(list);
 		res.end(JSON.stringify(json, null, 4));
 		// console.log(tokyoMou);
 	} else {
