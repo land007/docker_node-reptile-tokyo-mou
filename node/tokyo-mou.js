@@ -8,11 +8,12 @@ const statAsync = promisify(fs.stat);
 const schedule = require('node-schedule');
 const moment = require('moment');
 const readFile = (fileName) => promisify(fs.readFile)(fileName, 'utf8');
+const unite = require('./unite');
 
 const OpenProxy = process.env['PIPEMAX'] || 'false';// 打开代理
 const PipeMax = process.env['PIPEMAX'] || '20';// 同时任务数
 const PageMax = process.env['PAGEMAX'] || '8';// 最大页数
-const SubtractDays = process.env['SUBTRACTDAYS'] || '1';// 减去天数
+const SubtractDays = '5';// 减去天数process.env['SUBTRACTDAYS'] || 
 const Key = '<span style="font-size: 20px; font-weight: 700;">';// 验证码Key
 const Proxys = [
 		'https://odq5mfsnhb.execute-api.ap-southeast-1.amazonaws.com/default/Proxy1',
@@ -172,7 +173,7 @@ var _getTable = function(page, from, till, callback) {
 		}
 	};
 	_proxy_request(options, function(error, response, body) {
-		//console.log('body', body);
+//		console.log('body', body);
 		var $=cheerio.load(body);
 		var captionList = $('.table');
 		var itemList = [];
@@ -213,9 +214,15 @@ var _getTable = function(page, from, till, callback) {
 			//itemList.push(item);
 		});
 		if(itemList.length > 0) {
+			//Found 3441 elements in 137 page(s). Pages from 1 to 25
+			//Legend:	 - initial inspection	 - follow-up inspection
 			let page = body.substring(body.indexOf('elements in ') + 'elements in '.length, body.length);
 			page = page.substring(0, page.indexOf(' page(s)'));
-			itemList[0][itemList[0].length] = parseInt(page);
+			page = parseInt(page);
+			if(page != page) {//如果没有页数信息，说明只有一页
+				page = 1;
+			}
+			itemList[0][itemList[0].length] = page;
 		}
 		callback(itemList);
 	});
@@ -293,8 +300,13 @@ var getTables = function(max, from, till) {
 		// resolve(itemLists);
 		let itemList1 = await getTable(1, from, till);
 		console.log('get_tables', 0);
+//		console.log('itemList1', itemList1);
 		let page = itemList1[0][itemList1[0].length - 1];//获得总页数
 		console.log('page', page);
+		if(page !== page) {//NaN 不等于自身
+			//reject();
+			return;
+		}
 		console.log('max', max);
 		if(page > max) {
 			page = max;
@@ -317,19 +329,8 @@ var getTables = function(max, from, till) {
 	});
 };
 
-var reptile = function(from, till, max, force) {
+var crawling = function(from, till, max) {
 	return new Promise(async function(resolve, reject) {
-		if(!force) {//如果不是强制，可以取缓存信息
-			let file_path = __dirname + '/reptile_' +  from + '-' + till + '.json';
-			try {
-				let content = await readFile(file_path);
-				let json = JSON.parse(content);
-				resolve(json);
-				return;
-			} catch (e) {
-				console.log('没有找到 ' + file_path + ' 缓存文件');
-			}
-		}
 		let time = new Date().getTime();
 		let msg = await login();
 		console.log('login time', new Date().getTime() - time); time = new Date().getTime();
@@ -360,6 +361,24 @@ var reptile = function(from, till, max, force) {
 	});
 };
 
+var reptile = function(from, till, max, force) {
+	return new Promise(async function(resolve, reject) {
+		if(!force) {//如果不是强制，可以取缓存信息
+			let file_path = __dirname + '/reptile_' +  from + '-' + till + '.json';
+			try {
+				let content = await readFile(file_path);
+				let json = JSON.parse(content);
+				resolve(json);
+				return;
+			} catch (e) {
+				console.log('没有找到 ' + file_path + ' 缓存文件');
+			}
+		}
+		let items = await unite(crawling, from, till, max);
+		resolve(items);
+	});
+};
+
 var start = async function() {
 	let from = moment().subtract(parseInt(SubtractDays), 'days').format('DD.MM.YYYY') || '30.07.2019';// 开始日期
 	let till = moment().subtract(parseInt(SubtractDays), 'days').format('DD.MM.YYYY') || '30.07.2019';// 截至日期
@@ -371,13 +390,16 @@ var start = async function() {
 		});
 	}
 };
+
 start();
+
 var scheduleCronstyle = function() {
     schedule.scheduleJob(Cron, ()=>{
         console.log('scheduleCronstyle:', moment().format('LLL'));
         start();
     }); 
 }
+
 scheduleCronstyle();
 
 module.exports = {reptile};

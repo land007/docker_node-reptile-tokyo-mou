@@ -6,8 +6,8 @@ const converter = require('./converter');
 const hostname = '0.0.0.0';
 const port = 80;
 
-const PageMax = 2;// 最大页数
-const SubtractDays = process.env['SUBTRACTDAYS'] || '1';// 减去天数
+const PageMax = 8;// 最大页数
+const SubtractDays = '5';// 减去天数process.env['SUBTRACTDAYS'] || 
 
 const server = http.createServer(async (req, res) => {
 	var pathname = url.parse(req.url).pathname;
