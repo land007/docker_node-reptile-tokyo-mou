@@ -2,10 +2,14 @@ FROM land007/ubuntu-node:latest
 
 MAINTAINER Yiqiu Jia <yiqiujia@hotmail.com>
 
+RUN rm /node_/node_modules
 ADD node/package.json /node_/package.json
 RUN cd /node_ && npm install
 ADD node/server.js /node_/server.js
 ADD node/tokyo-mou.js /node_/tokyo-mou.js
+ADD node/unite.js /node_/unite.js
+ADD node/converter.js /node_/converter.js
+
 ENV PIPEMAX=20\
 	PAGEMAX=8\
 	SUBTRACTDAYS=1\
