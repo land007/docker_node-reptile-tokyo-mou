@@ -6,8 +6,8 @@ const converter = require('./converter');
 const hostname = '0.0.0.0';
 const port = 80;
 
-const PageMax = 8;// 最大页数
-const SubtractDays = '5';// 减去天数process.env['SUBTRACTDAYS'] || 
+const PageMax = process.env['PAGEMAX'] || '8';// 最大页数
+const SubtractDays = process.env['SUBTRACTDAYS'] || '1';// 减去天数
 
 const server = http.createServer(async (req, res) => {
 	var pathname = url.parse(req.url).pathname;
@@ -24,7 +24,7 @@ const server = http.createServer(async (req, res) => {
 		});
 		let from = moment().subtract(parseInt(SubtractDays), 'days').format('DD.MM.YYYY') || '30.07.2019';// 开始日期
 		let till = moment().subtract(parseInt(SubtractDays), 'days').format('DD.MM.YYYY') || '30.07.2019';// 截至日期
-		let list = await tokyoMou.reptile(from, till, PageMax);
+		let list = await tokyoMou.reptile(from, till, parseInt(PageMax));
 		let json = converter(list);
 		res.end(JSON.stringify(json, null, 4));
 		// console.log(tokyoMou);

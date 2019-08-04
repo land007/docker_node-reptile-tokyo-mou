@@ -13,7 +13,7 @@ const unite = require('./unite');
 const OpenProxy = process.env['PIPEMAX'] || 'false';// 打开代理
 const PipeMax = process.env['PIPEMAX'] || '20';// 同时任务数
 const PageMax = process.env['PAGEMAX'] || '8';// 最大页数
-const SubtractDays = '5';// 减去天数process.env['SUBTRACTDAYS'] || 
+const SubtractDays = '1';// 减去天数process.env['SUBTRACTDAYS'] || 
 const Key = '<span style="font-size: 20px; font-weight: 700;">';// 验证码Key
 const Proxys = [
 		'https://odq5mfsnhb.execute-api.ap-southeast-1.amazonaws.com/default/Proxy1',
@@ -364,7 +364,8 @@ var crawling = function(from, till, max) {
 var reptile = function(from, till, max, force) {
 	return new Promise(async function(resolve, reject) {
 		if(!force) {//如果不是强制，可以取缓存信息
-			let file_path = __dirname + '/reptile_' +  from + '-' + till + '.json';
+			console.log('取缓存');
+			let file_path = __dirname + '/reptile_' +  from + '-' + till + '-' + max + '.json';
 			try {
 				let content = await readFile(file_path);
 				let json = JSON.parse(content);
@@ -374,17 +375,20 @@ var reptile = function(from, till, max, force) {
 				console.log('没有找到 ' + file_path + ' 缓存文件');
 			}
 		}
+		console.log('取网站');
 		let items = await unite(crawling, from, till, max);
 		resolve(items);
 	});
 };
 
 var start = async function() {
+	console.log('start1');
 	let from = moment().subtract(parseInt(SubtractDays), 'days').format('DD.MM.YYYY') || '30.07.2019';// 开始日期
 	let till = moment().subtract(parseInt(SubtractDays), 'days').format('DD.MM.YYYY') || '30.07.2019';// 截至日期
-	let file_path = __dirname + '/reptile_' +  from + '-' + till + '.json';
-	let items = await reptile(from, till, parseInt(PageMax));
+	let items = await reptile(from, till, parseInt(PageMax), true);
+//	console.log('items', items);
 	if(items !== '') {
+		let file_path = __dirname + '/reptile_' +  from + '-' + till + '-' + PageMax + '.json';
 		fs.writeFile(file_path, JSON.stringify(items, null, 4), function(err) {
 			console.log('写文件 ' + file_path + ' 操作成功!');
 		});
