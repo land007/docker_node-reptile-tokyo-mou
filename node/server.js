@@ -2,6 +2,7 @@ const http = require("http"), url = require("url"), path = require("path"), norm
 const tokyoMou = require('./tokyo-mou');
 const moment = require('moment');
 const converter = require('./converter');
+const converter = require('./');
 
 const hostname = '0.0.0.0';
 const port = 80;

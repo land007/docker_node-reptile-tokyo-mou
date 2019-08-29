@@ -18,6 +18,7 @@ let converter = function(list) {
 			json[i - 1]["srpattoi"] = list[i][10];
 		}
 		let have_info = false;
+		let have_add = false;
 		let have_infos = false;
 		let list_index = 0;
 		for(let k = 0; k < list[i].length; k++) {
@@ -35,6 +36,15 @@ let converter = function(list) {
 				json[i - 1]["tonnage"] = list[i][list_index][j][9];
 				have_info = false;
 			}
+			if(have_add) {
+				json[i - 1]["name"] = list[i][list_index][j][0];
+				json[i - 1]["residence"] = list[i][list_index][j][2];
+				json[i - 1]["registered"] = list[i][list_index][j][3];
+				json[i - 1]["phone"] = list[i][list_index][j][4];
+				json[i - 1]["fax"] = list[i][list_index][j][5];
+				json[i - 1]["email"] = list[i][list_index][j][6];
+				have_add = false;
+			}
 			if(have_infos) {
 				if(json[i - 1]["infos"] === undefined) {
 					json[i - 1]["infos"] = [];
@@ -43,6 +53,9 @@ let converter = function(list) {
 			}
 			if(list[i][list_index][j][0] == "Ship Name" && list[i][list_index][j][1] == "IMO number") {
 				have_info = true;
+			}
+			if(list[i][list_index][j][4] == "Phone" && list[i][list_index][j][5] == "Fax") {
+				have_add = true;
 			}
 			if(list[i][list_index][j][2] == "Nature" && list[i][list_index][j][3] == "Ground for detention") {
 				have_infos = true;
