@@ -46,7 +46,8 @@ let persistence = function(list) {
 			let infos = obj['infos']
 			for(let j in infos) {
 				let info = infos[j];
-				let info_parameter = [obj.id, j, info.date, info.place];
+				console.log(info.nature);
+				let info_parameter = [obj.id, j, info.nature, info.ground_for_detention];
 				let info_query = connection.query(info_sql, info_parameter.concat(info_parameter),//parameter.push.apply(parameter, parameter)
 					function (error, results, fields) {
 //						console.log('info save');
