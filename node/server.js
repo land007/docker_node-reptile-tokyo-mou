@@ -2,7 +2,7 @@ const http = require("http"), url = require("url"), path = require("path"), norm
 const tokyoMou = require('./tokyo-mou');
 const moment = require('moment');
 const converter = require('./converter');
-const converter = require('./');
+const persistence = require('./persistence');
 
 const hostname = '0.0.0.0';
 const port = 80;
@@ -38,6 +38,8 @@ const server = http.createServer(async (req, res) => {
 		let till = querystring.parse(arg).till || moment().subtract(parseInt(SubtractDays), 'days').format('DD.MM.YYYY') || '30.07.2019';// 截至日期
 		let list = await tokyoMou.reptile(from, till, parseInt(pageMax), force);
 		let json = converter(list);
+		//保存到数据库
+		persistence(json);
 		res.end(JSON.stringify(json, null, 4));
 		// console.log(tokyoMou);
 	} else {

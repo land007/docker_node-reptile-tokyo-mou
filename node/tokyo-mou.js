@@ -9,6 +9,8 @@ const schedule = require('node-schedule');
 const moment = require('moment');
 const readFile = (fileName) => promisify(fs.readFile)(fileName, 'utf8');
 const unite = require('./unite');
+const converter = require('./converter');
+const persistence = require('./persistence');
 
 const OpenProxy = process.env['PIPEMAX'] || 'false';// 打开代理
 const PipeMax = process.env['PIPEMAX'] || '20';// 同时任务数
@@ -385,7 +387,7 @@ var start = async function() {
 	console.log('start1');
 	let from = moment().subtract(parseInt(SubtractDays), 'days').format('DD.MM.YYYY') || '30.07.2019';// 开始日期
 	let till = moment().subtract(parseInt(SubtractDays), 'days').format('DD.MM.YYYY') || '30.07.2019';// 截至日期
-	let items = await reptile(from, till, parseInt(PageMax), true);
+	let items = await reptile(from, till, parseInt(PageMax), false);
 //	console.log('items', items);
 	if(items !== '') {
 		let file_path = __dirname + '/reptile_' +  from + '-' + till + '-' + PageMax + '.json';
@@ -393,6 +395,9 @@ var start = async function() {
 			console.log('写文件 ' + file_path + ' 操作成功!');
 		});
 	}
+	//保存到数据库
+	let json = converter(items);
+	persistence(json);
 };
 
 start();

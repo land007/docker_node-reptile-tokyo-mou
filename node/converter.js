@@ -1,11 +1,19 @@
 
+var getDate = function(sdate) {
+	let dates = sdate.split('.');
+	if(dates.length == 3) {
+		return dates[2] + '-' + dates[1] + '-' + dates[0];
+	}
+	return sdate;
+}
+
 let converter = function(list) {
 	let json = [];
 	for(let i = 1; i < list.length; i++) {
 //		console.log(i);
 		json[i - 1] = {};
 		json[i - 1]["id"] = list[i][0];
-		json[i - 1]["date"] = list[i][1];
+		json[i - 1]["date"] = getDate(list[i][1]);
 		json[i - 1]["place"] = list[i][2];
 		json[i - 1]["imo_number"] = list[i][3];
 		json[i - 1]["ship_name"] = list[i][4];

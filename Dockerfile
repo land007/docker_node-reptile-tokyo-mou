@@ -9,6 +9,8 @@ ADD node/server.js /node_/server.js
 ADD node/tokyo-mou.js /node_/tokyo-mou.js
 ADD node/unite.js /node_/unite.js
 ADD node/converter.js /node_/converter.js
+ADD node/start.sh /start.sh
+RUN chmod +x /start.sh
 
 ENV PIPEMAX=20\
 	PAGEMAX=8\
@@ -22,6 +24,9 @@ ENV PIPEMAX=20\
 
 
 #RUN echo "/check.sh /node" >> /start.sh
+#date 需处理
+#加一个自增序号
+#日志需处理
+#任务需处理
 
 #docker stop node-reptile-tokyo-mou ; docker rm node-reptile-tokyo-mou ; docker run -it --privileged -v ~/docker/ubuntu-node:/node -p 80:80 --name node-reptile-tokyo-mou land007/node-reptile-tokyo-mou:latest
-#docker stop node-reptile-tokyo-mou && docker rm node-reptile-tokyo-mou && docker run -it --privileged -v c:/Users/jiayq/docker/node-reptile-tokyo-mou:/node -p 80:80 -e "DbHost=" -e "DbPort=0.0.0.0" -e "DbUsername=psc" -e "DbPassword=psc2019%" -e "Database=pscdb" --name node-reptile-tokyo-mou land007/node-reptile-tokyo-mou:latest
