@@ -92,13 +92,16 @@ var _getItem = function(code, callback) {
 			var tds = cap.children();
 			for(let i = 0; i < tds.length; i++) {
 				let texts = tds[i].children;
-				let text = texts[0];
-				if(text !== undefined) {
+				if(texts[0] !== undefined) {
 					let data = null;
-					if(text.type == 'text') {
-						data = text.data;
-					} else if (text.type == 'tag') {
-						data = text.attribs.src;
+					if(texts[0].type == 'text') {
+						data = texts[0].data;
+					} else if (texts[0].type == 'tag') {
+						if(texts[1] !== undefined && texts[1].type== 'text') {
+							data = texts[1].data;
+						} else {
+							data = texts[0].attribs.src || texts[0].attribs.value;
+						}
 					}
 					if(itemList[index] === undefined) {
 						itemList[index] = [];
@@ -185,16 +188,20 @@ var _getTable = function(page, from, till, callback) {
 			//console.log(tds.length);
 			for(let i = 0; i < tds.length; i++) {
 				let texts = tds[i].children;
-				let text = texts[0];
-				if(text !== undefined) {
+				if(texts[0]!== undefined) {
 					let data = null;
-					if(text.type == 'text') {
-						data = text.data;
-					} else if (text.type == 'tag') {
+					if(texts[0].type == 'text') {
+						data = texts[0].data;
+					} else if (texts[0].type == 'tag') {
 						if(i == 0) {
-							text = texts[1];
+							data = texts[1].attribs.src || texts[1].attribs.value;
+						} else {
+							if(texts[1] !== undefined && texts[1].type== 'text') {
+								data = texts[1].data;
+							} else {
+								data = texts[0].attribs.src || texts[0].attribs.value;
+							}
 						}
-						data = text.attribs.src || text.attribs.value;
 					}
 					if(itemList[index] === undefined) {
 						itemList[index] = [];
