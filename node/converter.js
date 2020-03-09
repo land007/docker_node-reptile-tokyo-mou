@@ -65,7 +65,7 @@ let converter = function(list) {
 				if(json[i - 1]["infos"] === undefined) {
 					json[i - 1]["infos"] = [];
 				}
-				json[i - 1]["infos"][json[i - 1]["infos"].length] = {"nature": list[i][list_index][j][2], "ground_for_detention": list[i][list_index][j][3]};
+				json[i - 1]["infos"][json[i - 1]["infos"].length] = {"code": list[i][list_index][j][1], "nature": list[i][list_index][j][2], "ground_for_detention": list[i][list_index][j][3]};
 			}
 			if(list[i][list_index][j][0] == "Date" && list[i][list_index][j][1] == "Authority") {
 				have_info0 = true;

@@ -7,7 +7,7 @@ const password = process.env['DbPassword'] || 'psc2019%';
 const database = process.env['Database'] || 'pscdb';
 
 const sql = 'INSERT INTO `b_occi` (`occi_id`, `date`, `place`, `ship_imo_number`, `ship_name`, `callsign`, `mmsi`, `flag`, `ship_type`, `deficiencies`, `detention`, `classification_society`, `srpattoi`, `authority`, `port`, `lnspection_type`, `date_keel_laid`, `deadweight`, `tonnage`, `company_name`, `company_imo_number`, `residence`, `registered`, `phone`, `fax`, `email`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE `occi_id` = ?, `date` = ?, `place` = ?, `ship_imo_number` = ?, `ship_name` = ?, `callsign` = ?, `mmsi` = ?, `flag` = ?, `ship_type` = ?, `deficiencies` = ?, `detention` = ?, `classification_society` = ?, `srpattoi` = ?, `authority` = ?, `port` = ?, `lnspection_type` = ?, `date_keel_laid` = ?, `deadweight` = ?, `tonnage` = ?, `company_name` = ?, `company_imo_number` = ?, `residence` = ?, `registered` = ?, `phone` = ?, `fax` = ?, `email` = ?;';
-const info_sql = 'INSERT INTO `b_occi_detail` (`occi_id`, `occi_detail_id`, `ground_for_detention`, `nature`) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE `occi_id` = ?, `occi_detail_id` = ?, `ground_for_detention` = ?, `nature` = ?;';
+const info_sql = 'INSERT INTO `b_occi_detail` (`occi_id`, `occi_detail_id`, `code`, `ground_for_detention`, `nature`) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE `occi_id` = ?, `occi_detail_id` = ?, `ground_for_detention` = ?, `nature` = ?;';
 
 var pool  = mysql.createPool({
 	connectionLimit : 10,
@@ -46,7 +46,7 @@ let persistence = function(list) {
 			let infos = obj['infos']
 			for(let j in infos) {
 				let info = infos[j];
-				let info_parameter = [obj.id, j, info.nature, info.ground_for_detention];
+				let info_parameter = [obj.id, j, info.code, info.ground_for_detention, info.nature];
 				let info_query = connection.query(info_sql, info_parameter.concat(info_parameter),//parameter.push.apply(parameter, parameter)
 					function (error, results, fields) {
 //						console.log('info save');

@@ -12,7 +12,7 @@ const unite = require('./unite');
 const converter = require('./converter');
 const persistence = require('./persistence');
 
-const OpenProxy = process.env['PIPEMAX'] || 'false';// 打开代理
+const OpenProxy = 'false';// 打开代理
 const PipeMax = process.env['PIPEMAX'] || '20';// 同时任务数
 const PageMax = process.env['PAGEMAX'] || '8';// 最大页数
 const SubtractDays = '1';// 减去天数process.env['SUBTRACTDAYS'] || 
@@ -251,17 +251,18 @@ var login = function() {
 			uri: 'https://apcis.tmou.org/public/',
 			headers: {
 				'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
-				'accept-encoding': 'gzip, deflate, br',
+//				'accept-encoding': 'gzip, deflate, br',
+				'accept-encoding': 'deflate, br',
 				'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
 				'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36',
 			}
 		};
 		_proxy_request(options, function(error, response, body) {
 //			console.log('form.headers', response.headers);
-//			console.log('form.body', body);
+			console.log('form.body', body);
 			let run = body.substring(body.indexOf(Key) + Key.length, body.length);
 			run = run.substring(0, run.indexOf('='));
-			console.log(run);
+			console.log('run', run);
 			let res = eval(run);
 			console.log(res);
 			options = {
@@ -270,7 +271,8 @@ var login = function() {
 				uri: 'https://apcis.tmou.org/public/?action=login',
 				headers: {
 					'accept': '*/*',
-					'accept-encoding': 'gzip, deflate, br',
+//					'accept-encoding': 'gzip, deflate, br',
+					'accept-encoding': 'deflate, br',
 					'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
 					'origin': 'https://apcis.tmou.org',
 					'referer': 'https://apcis.tmou.org/public/',
