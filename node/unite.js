@@ -3,6 +3,7 @@ const { promisify } = require('util');
 const sleep = promisify(setTimeout);
 
 var signals = {};
+var uniteTimeout = 10 * 60 * 1000;
 
 let unite = async function() {
 //	console.log('arguments', arguments);
@@ -25,6 +26,10 @@ let unite = async function() {
 //	console.log('key', key);
 	if(signals[key] === undefined) {
 		signals[key] = {signal: new Signal('default')};
+		setTimeout(function() {
+			signals[key].value = undefined;
+			signals[key].signal.state = 'ok';
+		}, uniteTimeout);
 		let data = await fun.apply(this, _arguments);
 		signals[key].value = data;
 		signals[key].signal.state = 'ok';

@@ -30,6 +30,7 @@ const Proxys = [
 		'https://8yflvll8a2.execute-api.ap-southeast-1.amazonaws.com/default/Proxy10'
 	];
 const Cron = process.env['CRON'] || '30 1 1 * * *';//每天的凌晨1点1分30秒触发
+const Cron1 = '30 1 2 * * *';//每天的凌晨2点1分30秒触发 Cron.replace(/1 \*/g, "2 *");
 var porxyNum = 0;//代理游标
 
 //const post_method = 'formData';// multipart/form-data
@@ -414,7 +415,13 @@ start();
 var scheduleCronstyle = function() {
     schedule.scheduleJob(Cron, ()=>{
         console.log('scheduleCronstyle:', moment().format('LLL'));
-        start();
+        process.exit(0)
+        //start();
+    }); 
+    schedule.scheduleJob(Cron1, ()=>{
+        console.log('scheduleCronstyle:', moment().format('LLL'));
+        process.exit(0)
+        //start();
     }); 
 }
 
